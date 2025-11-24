@@ -14,7 +14,6 @@
 
 		    $precio_compra=$this->limpiarCadena($_POST['producto_precio_compra']);
 		    $precio_venta=$this->limpiarCadena($_POST['producto_precio_venta']);
-		    $stock=$this->limpiarCadena($_POST['producto_stock']);
 
 		    $marca=$this->limpiarCadena($_POST['producto_marca']);
 		    $modelo=$this->limpiarCadena($_POST['producto_modelo']);
@@ -22,11 +21,11 @@
 		    $categoria=$this->limpiarCadena($_POST['producto_categoria']);
 
 		    # Verificando campos obligatorios #
-            if($codigo=="" || $nombre=="" || $precio_compra=="" || $precio_venta=="" || $stock==""){
+			if($codigo=="" || $nombre=="" || $precio_compra=="" || $precio_venta==""){
             	$alerta=[
 					"tipo"=>"simple",
 					"titulo"=>"Ocurrió un error inesperado",
-					"texto"=>"No has llenado todos los campos que son obligatorios",
+					"texto"=>"No has llenado todos los campos obligatorios (código, nombre, precios)",
 					"icono"=>"error"
 				];
 				return json_encode($alerta);
@@ -78,16 +77,6 @@
 		        exit();
 		    }
 
-		    if($this->verificarDatos("[0-9]{1,22}",$stock)){
-		    	$alerta=[
-					"tipo"=>"simple",
-					"titulo"=>"Ocurrió un error inesperado",
-					"texto"=>"El STOCK O EXISTENCIAS no coincide con el formato solicitado",
-					"icono"=>"error"
-				];
-				return json_encode($alerta);
-		        exit();
-		    }
 
 		    if($marca!=""){
 		    	if($this->verificarDatos("[a-zA-Z0-9áéíóúÁÉÍÓÚñÑ().,#\- ]{1,30}",$marca)){
@@ -140,17 +129,6 @@
 		        exit();
 		    }
 
-		    # Verificando stock total o existencias #
-            if($stock<=0){
-				$alerta=[
-					"tipo"=>"simple",
-					"titulo"=>"Ocurrió un error inesperado",
-					"texto"=>"No puedes registrar un producto con stock o existencias en 0, debes de agregar al menos una unidad",
-					"icono"=>"error"
-				];
-				return json_encode($alerta);
-		        exit();
-            }
 
             # Comprobando precio de compra del producto #
             $precio_compra=number_format($precio_compra,MONEDA_DECIMALES,'.','');
@@ -291,7 +269,7 @@
     			$foto="";
     		}
 
-    		$producto_datos_reg=[
+			$producto_datos_reg=[
 				[
 					"campo_nombre"=>"producto_codigo",
 					"campo_marcador"=>":Codigo",
@@ -301,11 +279,6 @@
 					"campo_nombre"=>"producto_nombre",
 					"campo_marcador"=>":Nombre",
 					"campo_valor"=>$nombre
-				],
-				[
-					"campo_nombre"=>"producto_stock_total",
-					"campo_marcador"=>":Stock",
-					"campo_valor"=>$stock
 				],
 				[
 					"campo_nombre"=>"producto_tipo_unidad",
@@ -397,7 +370,7 @@
 			$pagina = (isset($pagina) && $pagina>0) ? (int) $pagina : 1;
 			$inicio = ($pagina>0) ? (($pagina * $registros)-$registros) : 0;
 
-			$campos="producto.producto_id,producto.producto_codigo,producto.producto_nombre,producto_stock_total,producto.producto_precio_venta,producto.producto_foto,categoria.categoria_nombre";
+			$campos="producto.producto_id,producto.producto_codigo,producto.producto_nombre,producto.producto_precio_venta,producto.producto_foto,categoria.categoria_nombre";
 
 			if(isset($busqueda) && $busqueda!=""){
 
@@ -448,7 +421,6 @@
 		                            <strong>'.$contador.' - '.$rows['producto_nombre'].'</strong><br>
 		                            <strong>CODIGO:</strong> '.$rows['producto_codigo'].', 
 		                            <strong>PRECIO:</strong> $'.$rows['producto_precio_venta'].', 
-		                            <strong>STOCK:</strong> '.$rows['producto_stock_total'].', 
 		                            <strong>CATEGORIA:</strong> '.$rows['categoria_nombre'].'
 		                        </p>
 		                    </div>
@@ -597,7 +569,6 @@
 
 		    $precio_compra=$this->limpiarCadena($_POST['producto_precio_compra']);
 		    $precio_venta=$this->limpiarCadena($_POST['producto_precio_venta']);
-		    $stock=$this->limpiarCadena($_POST['producto_stock']);
 
 		    $marca=$this->limpiarCadena($_POST['producto_marca']);
 		    $modelo=$this->limpiarCadena($_POST['producto_modelo']);
@@ -605,11 +576,11 @@
 		    $categoria=$this->limpiarCadena($_POST['producto_categoria']);
 
 		    # Verificando campos obligatorios #
-            if($codigo=="" || $nombre=="" || $precio_compra=="" || $precio_venta=="" || $stock==""){
+			if($codigo=="" || $nombre=="" || $precio_compra=="" || $precio_venta==""){
             	$alerta=[
 					"tipo"=>"simple",
 					"titulo"=>"Ocurrió un error inesperado",
-					"texto"=>"No has llenado todos los campos que son obligatorios",
+					"texto"=>"No has llenado todos los campos obligatorios (código, nombre, precios)",
 					"icono"=>"error"
 				];
 				return json_encode($alerta);
@@ -661,16 +632,6 @@
 		        exit();
 		    }
 
-		    if($this->verificarDatos("[0-9]{1,22}",$stock)){
-		    	$alerta=[
-					"tipo"=>"simple",
-					"titulo"=>"Ocurrió un error inesperado",
-					"texto"=>"El STOCK O EXISTENCIAS no coincide con el formato solicitado",
-					"icono"=>"error"
-				];
-				return json_encode($alerta);
-		        exit();
-		    }
 
 		    if($marca!=""){
 		    	if($this->verificarDatos("[a-zA-Z0-9áéíóúÁÉÍÓÚñÑ().,#\- ]{1,30}",$marca)){
@@ -725,17 +686,6 @@
 			    }
 			}
 
-		    # Verificando stock total o existencias #
-            if($stock<=0){
-				$alerta=[
-					"tipo"=>"simple",
-					"titulo"=>"Ocurrió un error inesperado",
-					"texto"=>"No puedes registrar un producto con stock o existencias en 0, debes de agregar al menos una unidad",
-					"icono"=>"error"
-				];
-				return json_encode($alerta);
-		        exit();
-            }
 
             # Comprobando precio de compra del producto #
             $precio_compra=number_format($precio_compra,MONEDA_DECIMALES,'.','');
@@ -806,7 +756,7 @@
 		    }
 
 
-		    $producto_datos_up=[
+			$producto_datos_up=[
 				[
 					"campo_nombre"=>"producto_codigo",
 					"campo_marcador"=>":Codigo",
@@ -816,11 +766,6 @@
 					"campo_nombre"=>"producto_nombre",
 					"campo_marcador"=>":Nombre",
 					"campo_valor"=>$nombre
-				],
-				[
-					"campo_nombre"=>"producto_stock_total",
-					"campo_marcador"=>":Stock",
-					"campo_valor"=>$stock
 				],
 				[
 					"campo_nombre"=>"producto_tipo_unidad",
@@ -1112,7 +1057,7 @@
 
 		/*----------  Controlador listar producto para clientes (solo lectura)  ----------*/
 public function listarProductoPublicoControlador(){
-    $campos="producto.producto_id,producto.producto_codigo,producto.producto_nombre,producto_stock_total,producto.producto_precio_venta,producto.producto_foto,categoria.categoria_nombre";
+	$campos="producto.producto_id,producto.producto_codigo,producto.producto_nombre,producto.producto_precio_venta,producto.producto_foto,categoria.categoria_nombre";
     $consulta="SELECT $campos FROM producto INNER JOIN categoria ON producto.categoria_id=categoria.categoria_id ORDER BY producto.producto_nombre ASC";
     $datos=$this->ejecutarConsulta($consulta)->fetchAll();
     $salida="";
@@ -1122,7 +1067,7 @@ public function listarProductoPublicoControlador(){
             ? '<img src="'.APP_URL.'app/views/productos/'.$row['producto_foto'].'" />'
             : '<img src="'.APP_URL.'app/views/productos/default.png" />';
 
-        $salida.= "<article class=\"media pb-3 pt-3 producto-item\" data-codigo=\"".htmlspecialchars($row['producto_codigo'])."\">\n"
+		$salida.= "<article class=\"media pb-3 pt-3 producto-item\" data-codigo=\"".htmlspecialchars($row['producto_codigo'])."\">\n"
                 . "\t<figure class=\"media-left\">\n"
                 . "\t\t<p class=\"image is-64x64\">$fotoHtml</p>\n"
                 . "\t</figure>\n"
@@ -1132,12 +1077,11 @@ public function listarProductoPublicoControlador(){
                 . "\t\t\t\t<strong>$contador - ".htmlspecialchars($row['producto_nombre'])."</strong><br>\n"
                 . "\t\t\t\t<strong>CODIGO:</strong> ".htmlspecialchars($row['producto_codigo']).", \n"
                 . "\t\t\t\t<strong>PRECIO:</strong> $".number_format($row['producto_precio_venta'],MONEDA_DECIMALES,'.','')."\n"
-                . "\t\t\t\t<strong>STOCK:</strong> ".htmlspecialchars($row['producto_stock_total']).", \n"
                 . "\t\t\t\t<strong>CATEGORIA:</strong> ".htmlspecialchars($row['categoria_nombre'])."\n"
                 . "\t\t\t</p>\n"
                 . "\t\t</div>\n"
                 . "\t\t<div class=\"has-text-right\">\n"
-                . "\t\t\t<button type=\"button\" class=\"button is-primary is-rounded is-small btn-add-pedido\" data-codigo=\"".htmlspecialchars($row['producto_codigo'])."\" ".($row['producto_stock_total']>0? "" : "disabled").">\n"
+				. "\t\t\t<button type=\"button\" class=\"button is-primary is-rounded is-small btn-add-pedido\" data-codigo=\"".htmlspecialchars($row['producto_codigo'])."\">\n"
                 . "\t\t\t\t<i class=\"fas fa-cart-plus\"></i> Agregar\n"
                 . "\t\t\t</button>\n"
                 . "\t\t</div>\n"

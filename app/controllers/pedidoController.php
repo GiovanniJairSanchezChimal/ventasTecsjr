@@ -38,7 +38,8 @@ class pedidoController extends mainModel{
             return json_encode($alerta);
         }
 
-        $check_producto=$this->ejecutarConsulta("SELECT producto_id, producto_nombre, producto_precio_venta, producto_stock_total FROM producto WHERE producto_codigo='$codigo'");
+        // Se elimina la referencia a producto_stock_total ya que la columna fue removida o puede ser NULL
+        $check_producto=$this->ejecutarConsulta("SELECT producto_id, producto_nombre, producto_precio_venta FROM producto WHERE producto_codigo='$codigo'");
         if($check_producto->rowCount()!=1){
             $alerta=[
                 "tipo"=>"simple",
@@ -50,15 +51,7 @@ class pedidoController extends mainModel{
         }
         $producto=$check_producto->fetch();
 
-        if($producto['producto_stock_total']<=0){
-            $alerta=[
-                "tipo"=>"simple",
-                "titulo"=>"Sin stock",
-                "texto"=>"Este producto no tiene existencias disponibles",
-                "icono"=>"error"
-            ];
-            return json_encode($alerta);
-        }
+        // Ya no se valida stock; se permite agregar siempre
 
         if(!isset($_SESSION['pedido_cliente'])){ $_SESSION['pedido_cliente']=[]; }
 
@@ -141,20 +134,24 @@ class pedidoController extends mainModel{
             ]);
         }
 
-        // Calcular total venta y verificar stock
-        $venta_total=0; $error_stock=false; $productosDatos=[];
+        // Calcular total venta SIN verificar stock ni actualizar existencias
+        $venta_total=0; $productosDatos=[];
         foreach($_SESSION['pedido_cliente'] as $codigo=>$p){
-            $res=$this->ejecutarConsulta("SELECT producto_id, producto_nombre, producto_precio_compra, producto_precio_venta, producto_stock_total FROM producto WHERE producto_id='".$p['producto_id']."' AND producto_codigo='".$p['producto_codigo']."'");
-            if($res->rowCount()!=1){ $error_stock=true; break; }
+            $res=$this->ejecutarConsulta("SELECT producto_id, producto_nombre, producto_precio_compra, producto_precio_venta FROM producto WHERE producto_id='".$p['producto_id']."' AND producto_codigo='".$p['producto_codigo']."'");
+            if($res->rowCount()!=1){
+                return json_encode([
+                    "tipo"=>"simple",
+                    "titulo"=>"Producto inválido",
+                    "texto"=>"Un producto del pedido ya no existe",
+                    "icono"=>"error"
+                ]);
+            }
             $prod=$res->fetch();
-            if($prod['producto_stock_total'] < $p['cantidad']){ $error_stock=true; break; }
             $linea_total=number_format($p['cantidad']*$prod['producto_precio_venta'],MONEDA_DECIMALES,'.','');
             $venta_total+= $linea_total;
             $productosDatos[$codigo]=[
                 'producto_id'=>$prod['producto_id'],
                 'producto_codigo'=>$codigo,
-                'producto_stock_total_old'=>$prod['producto_stock_total'],
-                'nuevo_stock'=>$prod['producto_stock_total'] - $p['cantidad'],
                 'cantidad'=>$p['cantidad'],
                 'precio_compra'=>$prod['producto_precio_compra'],
                 'precio_venta'=>$prod['producto_precio_venta'],
@@ -162,47 +159,11 @@ class pedidoController extends mainModel{
                 'descripcion'=>$prod['producto_nombre']
             ];
         }
-        if($error_stock){
-            return json_encode([
-                "tipo"=>"simple",
-                "titulo"=>"Stock insuficiente",
-                "texto"=>"Alguno de los productos no tiene stock disponible",
-                "icono"=>"error"
-            ]);
-        }
         $venta_total=number_format($venta_total,MONEDA_DECIMALES,'.','');
         $venta_pagado=number_format(0,MONEDA_DECIMALES,'.','');
         $venta_cambio=number_format(0,MONEDA_DECIMALES,'.','');
         $venta_fecha=date("Y-m-d");
         $venta_hora=date("h:i a");
-
-        // Actualizar stock productos
-        foreach($productosDatos as $info){
-            $up=[[
-                "campo_nombre"=>"producto_stock_total",
-                "campo_marcador"=>":Stock",
-                "campo_valor"=>$info['nuevo_stock']
-            ]];
-            $cond=[
-                "condicion_campo"=>"producto_id",
-                "condicion_marcador"=>":ID",
-                "condicion_valor"=>$info['producto_id']
-            ];
-            if(!$this->actualizarDatos("producto",$up,$cond)){
-                // revertir actualizaciones previas
-                foreach($productosDatos as $rev){
-                    $revUp=[["campo_nombre"=>"producto_stock_total","campo_marcador"=>":Stock","campo_valor"=>$rev['producto_stock_total_old']]];
-                    $revCond=["condicion_campo"=>"producto_id","condicion_marcador"=>":ID","condicion_valor"=>$rev['producto_id']];
-                    $this->actualizarDatos("producto",$revUp,$revCond);
-                }
-                return json_encode([
-                    "tipo"=>"simple",
-                    "titulo"=>"Error productos",
-                    "texto"=>"No se pudo actualizar stock de productos",
-                    "icono"=>"error"
-                ]);
-            }
-        }
 
         // Generar código venta
         $correlativo=$this->ejecutarConsulta("SELECT venta_id FROM venta");
@@ -225,12 +186,6 @@ class pedidoController extends mainModel{
         ];
         $addVenta=$this->guardarDatos("venta",$datos_venta);
         if($addVenta->rowCount()!=1){
-            // revertir stock
-            foreach($productosDatos as $rev){
-                $revUp=[["campo_nombre"=>"producto_stock_total","campo_marcador"=>":Stock","campo_valor"=>$rev['producto_stock_total_old']]];
-                $revCond=["condicion_campo"=>"producto_id","condicion_marcador"=>":ID","condicion_valor"=>$rev['producto_id']];
-                $this->actualizarDatos("producto",$revUp,$revCond);
-            }
             return json_encode([
                 "tipo"=>"simple",
                 "titulo"=>"Error venta",
@@ -252,14 +207,9 @@ class pedidoController extends mainModel{
             ];
             $addDet=$this->guardarDatos("venta_detalle",$datos_det);
             if($addDet->rowCount()!=1){
-                // rollback detalles y venta
+                // rollback detalles y venta (sin gestión de stock)
                 $this->eliminarRegistro("venta_detalle","venta_codigo",$codigo_venta);
                 $this->eliminarRegistro("venta","venta_codigo",$codigo_venta);
-                foreach($productosDatos as $rev){
-                    $revUp=[["campo_nombre"=>"producto_stock_total","campo_marcador"=>":Stock","campo_valor"=>$rev['producto_stock_total_old']]];
-                    $revCond=["condicion_campo"=>"producto_id","condicion_marcador"=>":ID","condicion_valor"=>$rev['producto_id']];
-                    $this->actualizarDatos("producto",$revUp,$revCond);
-                }
                 return json_encode([
                     "tipo"=>"simple",
                     "titulo"=>"Error detalle",
@@ -275,7 +225,7 @@ class pedidoController extends mainModel{
         return json_encode([
             "tipo"=>"simple",
             "titulo"=>"Pedido confirmado",
-            "texto"=>"Se registró la venta en estado Apartado. Código: $codigo_venta",
+            "texto"=>"Se registró el pedido. Código: $codigo_venta",
             "icono"=>"success"
         ]);
     }

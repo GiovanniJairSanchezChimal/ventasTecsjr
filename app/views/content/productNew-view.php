@@ -36,12 +36,6 @@
 				  	<input class="input" type="text" name="producto_precio_venta" pattern="[0-9.]{1,25}" maxlength="25" value="0.00" required >
 				</div>
 		  	</div>
-		  	<div class="column">
-		    	<div class="control">
-					<label>Stock o existencias <?php echo CAMPO_OBLIGATORIO; ?></label>
-				  	<input class="input" type="text" name="producto_stock" pattern="[0-9]{1,22}" maxlength="22" required >
-				</div>
-		  	</div>
 		</div>
 		<div class="columns">
 		  	<div class="column">

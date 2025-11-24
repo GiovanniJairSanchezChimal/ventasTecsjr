@@ -78,15 +78,7 @@
             </div>
           </div>
 
-          <p class="has-text-centered mt-4">
-            <button type="reset" class="button is-link is-light is-rounded"><i class="fas fa-paint-roller"></i> &nbsp; Limpiar</button>
-            <button type="submit" class="button is-info is-rounded"><i class="far fa-save"></i> &nbsp; Guardar</button>
-          </p>
-
-					<p class="has-text-centered pt-4"><small>Los campos marcados con <?php echo CAMPO_OBLIGATORIO; ?> son obligatorios</small></p>
-					<p class="has-text-centered mt-3">
-						<a href="<?php echo APP_URL; ?>login/" class="button is-link is-light is-rounded">Volver al login</a>
-					</p>
+          
 
           <!-- Campos de contraseña -->
           <hr>
@@ -104,6 +96,15 @@
               <input class="input" type="password" name="cliente_clave_2" pattern="[a-zA-Z0-9$@.-]{7,100}" maxlength="100" required >
             </div>
           </div>
+          <p class="has-text-centered mt-4">
+            <button type="reset" class="button is-link is-light is-rounded"><i class="fas fa-paint-roller"></i> &nbsp; Limpiar</button>
+            <button type="submit" class="button is-info is-rounded"><i class="far fa-save"></i> &nbsp; Guardar</button>
+          </p>
+
+					<p class="has-text-centered pt-4"><small>Los campos marcados con <?php echo CAMPO_OBLIGATORIO; ?> son obligatorios</small></p>
+					<p class="has-text-centered mt-3">
+						<a href="<?php echo APP_URL; ?>login/" class="button is-link is-light is-rounded">Volver al login</a>
+					</p>
 				</form>
 			</div>
 		</div>

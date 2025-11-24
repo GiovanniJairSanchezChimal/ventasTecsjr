@@ -78,6 +78,20 @@
 				</div>
 		  	</div>
 		</div>
+		<div class="columns">
+			<div class="column">
+				<div class="control">
+					<label>Contraseña <?php echo CAMPO_OBLIGATORIO; ?></label>
+					<input class="input" type="password" name="cliente_clave_1" pattern="[a-zA-Z0-9$@.-]{7,100}" maxlength="100" required>
+				</div>
+			</div>
+			<div class="column">
+				<div class="control">
+					<label>Confirmar contraseña <?php echo CAMPO_OBLIGATORIO; ?></label>
+					<input class="input" type="password" name="cliente_clave_2" pattern="[a-zA-Z0-9$@.-]{7,100}" maxlength="100" required>
+				</div>
+			</div>
+		</div>
 		<p class="has-text-centered">
 			<button type="reset" class="button is-link is-light is-rounded"><i class="fas fa-paint-roller"></i> &nbsp; Limpiar</button>
 			<button type="submit" class="button is-info is-rounded"><i class="far fa-save"></i> &nbsp; Guardar</button>

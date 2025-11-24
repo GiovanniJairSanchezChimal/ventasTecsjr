@@ -1116,11 +1116,15 @@
 				foreach($datos as $rows){
 					// Determinar si es apartado (pagado < total)
 					$isApartado = (floatval($rows['venta_pagado']) < floatval($rows['venta_total']));
+					$isPagado = (floatval($rows['venta_pagado']) >= floatval($rows['venta_total']));
 					$totalDisplay = MONEDA_SIMBOLO.number_format($rows['venta_total'],MONEDA_DECIMALES,MONEDA_SEPARADOR_DECIMAL,MONEDA_SEPARADOR_MILLAR).' '.MONEDA_NOMBRE;
 					if($isApartado){
 						$pagadoDisplay = MONEDA_SIMBOLO.number_format($rows['venta_pagado'],MONEDA_DECIMALES,MONEDA_SEPARADOR_DECIMAL,MONEDA_SEPARADOR_MILLAR).' '.MONEDA_NOMBRE;
 						// Mostrar pagado y apartado en azul fuerte
 						$totalDisplay .= '<br><small style="color:#041a99; font-weight:600;">Abonado: '.$pagadoDisplay.' Apartado.</small>';
+					} elseif($isPagado){
+						// Venta liquidada completamente
+						$totalDisplay .= '<br><span class="tag is-success is-light" title="Venta pagada en su totalidad">Pagado</span>';
 					}
 
 					$abonarBtn = '';

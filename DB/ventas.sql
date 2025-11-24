@@ -104,7 +104,7 @@ CREATE TABLE `producto` (
   `producto_id` int(20) NOT NULL,
   `producto_codigo` varchar(77) COLLATE utf8_spanish2_ci NOT NULL,
   `producto_nombre` varchar(100) COLLATE utf8_spanish2_ci NOT NULL,
-  `producto_stock_total` int(25) NOT NULL,
+  `producto_stock_total` int(25) NULL,
   `producto_tipo_unidad` varchar(20) COLLATE utf8_spanish2_ci NOT NULL,
   `producto_precio_compra` decimal(30,2) NOT NULL,
   `producto_precio_venta` decimal(30,2) NOT NULL,

@@ -9,7 +9,7 @@ $insPedido = new pedidoController();
 <div class="container is-fluid mb-4">
 	<div class="columns is-vcentered">
 		<div class="column">
-			<h1 class="title">Área de Cliente</h1>
+			<h1 class="title">Bienvenido<?php if(isset($_SESSION['cliente_nombre'])){ echo ' '.htmlspecialchars($_SESSION['cliente_nombre'].' '.$_SESSION['cliente_apellido']); } ?></h1>
 			<h2 class="subtitle"><i class="fas fa-shopping-basket"></i> &nbsp; Catálogo de productos</h2>
 		</div>
 		<div class="column is-narrow has-text-right">

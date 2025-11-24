@@ -28,7 +28,7 @@
 		</figure>
   	</div>
 
-	<h2 class="title has-text-centered"><?php echo $datos['producto_nombre']." (Stock: ".$datos['producto_stock_total']." ".$datos['producto_tipo_unidad'].")"; ?></h2>
+	<h2 class="title has-text-centered"><?php echo $datos['producto_nombre']; ?></h2>
 
 	<form class="FormularioAjax" action="<?php echo APP_URL; ?>app/ajax/productoAjax.php" method="POST" autocomplete="off" >
 
@@ -60,12 +60,6 @@
 		    	<div class="control">
 					<label>Precio de venta <?php echo CAMPO_OBLIGATORIO; ?></label>
 				  	<input class="input" type="text" name="producto_precio_venta" value="<?php echo $datos['producto_precio_venta']; ?>" pattern="[0-9.]{1,25}" maxlength="25" value="0.00" required >
-				</div>
-		  	</div>
-		  	<div class="column">
-		    	<div class="control">
-					<label>Stock o existencias <?php echo CAMPO_OBLIGATORIO; ?></label>
-				  	<input class="input" type="text" name="producto_stock" value="<?php echo $datos['producto_stock_total']; ?>" pattern="[0-9]{1,22}" maxlength="22" required >
 				</div>
 		  	</div>
 		</div>
