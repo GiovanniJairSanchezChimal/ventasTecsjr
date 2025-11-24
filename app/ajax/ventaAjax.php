@@ -50,6 +50,11 @@
 			echo $insVenta->registrarVentaControlador();
 		}
 
+		/*--------- Abonar venta (apartado) ---------*/
+		if($_POST['modulo_venta']=="abonar_venta"){
+			echo $insVenta->abonarVentaControlador();
+		}
+
 		/*--------- Eliminar venta ---------*/
 		if($_POST['modulo_venta']=="eliminar_venta"){
 			echo $insVenta->eliminarVentaControlador();

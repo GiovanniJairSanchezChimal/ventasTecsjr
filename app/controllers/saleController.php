@@ -29,11 +29,12 @@
             /*== Seleccionando productos en la DB ==*/
             $datos_productos=$this->ejecutarConsulta("SELECT * FROM producto WHERE (producto_nombre LIKE '%$producto%' OR producto_marca LIKE '%$producto%' OR producto_modelo LIKE '%$producto%') ORDER BY producto_nombre ASC");
 
-            if($datos_productos->rowCount()>=1){
+			if($datos_productos->rowCount()>=1){
 
 				$datos_productos=$datos_productos->fetchAll();
 
-				$tabla='<div class="table-container mb-6"><table class="table is-striped is-narrow is-hoverable is-fullwidth"><tbody>';
+				// Inicializar tabla antes de concatenar para evitar aviso de variable indefinida
+				$tabla = '<div class="table-container mb-6"><table class="table is-striped is-narrow is-hoverable is-fullwidth"><tbody>';
 
 				foreach($datos_productos as $rows){
 					$tabla.='
@@ -466,8 +467,9 @@
         /*---------- Controlador registrar venta ----------*/
         public function registrarVentaControlador(){
 
-            $caja=$this->limpiarCadena($_POST['venta_caja']);
-            $venta_pagado=$this->limpiarCadena($_POST['venta_abono']);
+			$caja=$this->limpiarCadena($_POST['venta_caja']);
+			$venta_pagado=$this->limpiarCadena($_POST['venta_abono']);
+			$venta_tipo=isset($_POST['venta_tipo']) ? $this->limpiarCadena($_POST['venta_tipo']) : 'contado';
 
             /*== Comprobando integridad de los datos ==*/
             if($this->verificarDatos("[0-9.]{1,25}",$venta_pagado)){
@@ -545,20 +547,25 @@
             $venta_total_final=number_format($venta_total_final,MONEDA_DECIMALES,'.','');
 
 
-            /*== Calculando el cambio ==*/
-            if($venta_pagado<$venta_total_final){
-                $alerta=[
-					"tipo"=>"simple",
-					"titulo"=>"Ocurrió un error inesperado",
-					"texto"=>"Esta es una venta al contado, el total a pagar por el cliente no puede ser menor al total a pagar",
-					"icono"=>"error"
-				];
-				return json_encode($alerta);
-		        exit();
-            }
-
-            $venta_cambio=$venta_pagado-$venta_total_final;
-            $venta_cambio=number_format($venta_cambio,MONEDA_DECIMALES,'.','');
+			/*== Calculando el cambio ==*/
+			if($venta_pagado<$venta_total_final){
+				if($venta_tipo!="apartado"){
+					$alerta=[
+						"tipo"=>"simple",
+						"titulo"=>"Ocurrió un error inesperado",
+						"texto"=>"Esta es una venta al contado, el total a pagar por el cliente no puede ser menor al total a pagar",
+						"icono"=>"error"
+					];
+					return json_encode($alerta);
+					exit();
+				}else{
+					// Venta como apartado: se acepta un abono menor al total, no hay cambio
+					$venta_cambio=number_format(0,MONEDA_DECIMALES,'.','');
+				}
+			}else{
+				$venta_cambio=$venta_pagado-$venta_total_final;
+				$venta_cambio=number_format($venta_cambio,MONEDA_DECIMALES,'.','');
+			}
 
 
             /*== Calculando total en caja ==*/
@@ -883,6 +890,171 @@
 
 
         /*----------  Controlador listar venta  ----------*/
+
+		/*---------- Controlador abonar venta (apartado) ----------*/
+		public function abonarVentaControlador(){
+
+			$id=$this->limpiarCadena($_POST['venta_id']);
+			$abono=$this->limpiarCadena($_POST['venta_abono']);
+
+			if($id=="" || $abono==""){
+				$alerta=[
+					"tipo"=>"simple",
+					"titulo"=>"Ocurrió un error inesperado",
+					"texto"=>"Faltan parámetros para procesar el abono",
+					"icono"=>"error"
+				];
+				return json_encode($alerta);
+				exit();
+			}
+
+			if($this->verificarDatos("[0-9.]{1,25}",$abono)){
+				$alerta=[
+					"tipo"=>"simple",
+					"titulo"=>"Ocurrió un error inesperado",
+					"texto"=>"El monto a abonar no coincide con el formato solicitado",
+					"icono"=>"error"
+				];
+				return json_encode($alerta);
+				exit();
+			}
+
+			# Verificando venta #
+			$check_venta=$this->ejecutarConsulta("SELECT * FROM venta WHERE venta_id='$id'");
+			if($check_venta->rowCount()<=0){
+				$alerta=[
+					"tipo"=>"simple",
+					"titulo"=>"Ocurrió un error inesperado",
+					"texto"=>"No hemos encontrado la venta en el sistema",
+					"icono"=>"error"
+				];
+				return json_encode($alerta);
+				exit();
+			}else{
+				$venta=$check_venta->fetch();
+			}
+
+			$venta_total=floatval(number_format($venta['venta_total'],MONEDA_DECIMALES,'.',''));
+			$venta_pagado=floatval(number_format($venta['venta_pagado'],MONEDA_DECIMALES,'.',''));
+			$abono=floatval(number_format($abono,MONEDA_DECIMALES,'.',''));
+
+			if($abono<=0){
+				$alerta=[
+					"tipo"=>"simple",
+					"titulo"=>"Ocurrió un error inesperado",
+					"texto"=>"El monto a abonar debe ser mayor a 0",
+					"icono"=>"error"
+				];
+				return json_encode($alerta);
+				exit();
+			}
+
+			$restante = $venta_total - $venta_pagado;
+
+			if($restante<=0){
+				$alerta=[
+					"tipo"=>"simple",
+					"titulo"=>"Ocurrió un error inesperado",
+					"texto"=>"Esta venta ya se encuentra pagada en su totalidad",
+					"icono"=>"error"
+				];
+				return json_encode($alerta);
+				exit();
+			}
+
+			if($abono > $restante){
+				$abono_usado = $restante; // solo se acepta hasta cubrir lo restante
+				$venta_cambio = number_format($abono - $restante,MONEDA_DECIMALES,'.','');
+			}else{
+				$abono_usado = $abono;
+				$venta_cambio = number_format(0,MONEDA_DECIMALES,'.','');
+			}
+
+			$nuevo_pagado = number_format($venta_pagado + $abono_usado,MONEDA_DECIMALES,'.','');
+			if($nuevo_pagado > $venta_total) $nuevo_pagado = $venta_total;
+
+			/*== Actualizando venta ==*/
+			$datos_venta_up=[
+				[
+					"campo_nombre"=>"venta_pagado",
+					"campo_marcador"=>":Pagado",
+					"campo_valor"=> $nuevo_pagado
+				],
+				[
+					"campo_nombre"=>"venta_cambio",
+					"campo_marcador"=>":Cambio",
+					"campo_valor"=> $venta_cambio
+				]
+			];
+
+			$condicion=[
+				"condicion_campo"=>"venta_id",
+				"condicion_marcador"=>":ID",
+				"condicion_valor"=> $id
+			];
+
+			if(!$this->actualizarDatos("venta",$datos_venta_up,$condicion)){
+				$alerta=[
+					"tipo"=>"simple",
+					"titulo"=>"Ocurrió un error inesperado",
+					"texto"=>"No hemos podido actualizar la venta, por favor intente nuevamente",
+					"icono"=>"error"
+				];
+				return json_encode($alerta);
+				exit();
+			}
+
+			/*== Actualizando efectivo en caja (solo se suma lo efectivamente abonado) ==*/
+			$datos_caja=$this->ejecutarConsulta("SELECT * FROM caja WHERE caja_id='".$venta['caja_id']."'");
+			if($datos_caja->rowCount()<=0){
+				$alerta=[
+					"tipo"=>"simple",
+					"titulo"=>"Ocurrió un error inesperado",
+					"texto"=>"No hemos podido localizar la caja asociada a la venta",
+					"icono"=>"error"
+				];
+				return json_encode($alerta);
+				exit();
+			}else{
+				$datos_caja=$datos_caja->fetch();
+			}
+
+			$total_caja = number_format($datos_caja['caja_efectivo'] + $abono_usado,MONEDA_DECIMALES,'.','');
+
+			$datos_caja_up=[
+				[
+					"campo_nombre"=>"caja_efectivo",
+					"campo_marcador"=>":Efectivo",
+					"campo_valor"=> $total_caja
+				]
+			];
+
+			$condicion_caja=[
+				"condicion_campo"=>"caja_id",
+				"condicion_marcador"=>":ID",
+				"condicion_valor"=> $venta['caja_id']
+			];
+
+			if(!$this->actualizarDatos("caja",$datos_caja_up,$condicion_caja)){
+				$alerta=[
+					"tipo"=>"simple",
+					"titulo"=>"Ocurrió un error inesperado",
+					"texto"=>"No hemos podido actualizar la caja con el abono recibido",
+					"icono"=>"error"
+				];
+				return json_encode($alerta);
+				exit();
+			}
+
+			$alerta=[
+				"tipo"=>"recargar",
+				"titulo"=>"¡Abono registrado!",
+				"texto"=>"El abono se registró correctamente",
+				"icono"=>"success"
+			];
+			return json_encode($alerta);
+		}
+
 		public function listarVentaControlador($pagina,$registros,$url,$busqueda){
 
 			$pagina=$this->limpiarCadena($pagina);
@@ -897,7 +1069,7 @@
 			$pagina = (isset($pagina) && $pagina>0) ? (int) $pagina : 1;
 			$inicio = ($pagina>0) ? (($pagina * $registros)-$registros) : 0;
 
-			$campos_tablas="venta.venta_id,venta.venta_codigo,venta.venta_fecha,venta.venta_hora,venta.venta_total,venta.usuario_id,venta.cliente_id,venta.caja_id,usuario.usuario_id,usuario.usuario_nombre,usuario.usuario_apellido,cliente.cliente_id,cliente.cliente_nombre,cliente.cliente_apellido";
+			$campos_tablas="venta.venta_id,venta.venta_codigo,venta.venta_fecha,venta.venta_hora,venta.venta_total,venta.venta_pagado,venta.usuario_id,venta.cliente_id,venta.caja_id,usuario.usuario_id,usuario.usuario_nombre,usuario.usuario_apellido,cliente.cliente_id,cliente.cliente_nombre,cliente.cliente_apellido";
 
 			if(isset($busqueda) && $busqueda!=""){
 
@@ -942,6 +1114,20 @@
 				$contador=$inicio+1;
 				$pag_inicio=$inicio+1;
 				foreach($datos as $rows){
+					// Determinar si es apartado (pagado < total)
+					$isApartado = (floatval($rows['venta_pagado']) < floatval($rows['venta_total']));
+					$totalDisplay = MONEDA_SIMBOLO.number_format($rows['venta_total'],MONEDA_DECIMALES,MONEDA_SEPARADOR_DECIMAL,MONEDA_SEPARADOR_MILLAR).' '.MONEDA_NOMBRE;
+					if($isApartado){
+						$pagadoDisplay = MONEDA_SIMBOLO.number_format($rows['venta_pagado'],MONEDA_DECIMALES,MONEDA_SEPARADOR_DECIMAL,MONEDA_SEPARADOR_MILLAR).' '.MONEDA_NOMBRE;
+						// Mostrar pagado y apartado en azul fuerte
+						$totalDisplay .= '<br><small style="color:#041a99; font-weight:600;">Abonado: '.$pagadoDisplay.' Apartado.</small>';
+					}
+
+					$abonarBtn = '';
+					if($isApartado){
+					   $abonarBtn = '<button type="button" class="button is-warning is-rounded is-small" onclick="abrirAbonarModal('.$rows['venta_id'].', \''. $rows['venta_codigo'] .'\')" title="Agregar abono"> <i class="fas fa-hand-holding-usd"></i> </button>';
+					}
+
 					$tabla.='
 						<tr class="has-text-centered" >
 							<td>'.$rows['venta_id'].'</td>
@@ -949,32 +1135,34 @@
 							<td>'.date("d-m-Y", strtotime($rows['venta_fecha'])).' '.$rows['venta_hora'].'</td>
 							<td>'.$this->limitarCadena($rows['cliente_nombre'].' '.$rows['cliente_apellido'],30,"...").'</td>
 							<td>'.$this->limitarCadena($rows['usuario_nombre'].' '.$rows['usuario_apellido'],30,"...").'</td>
-							<td>'.MONEDA_SIMBOLO.number_format($rows['venta_total'],MONEDA_DECIMALES,MONEDA_SEPARADOR_DECIMAL,MONEDA_SEPARADOR_MILLAR).' '.MONEDA_NOMBRE.'</td>
-			                <td>
+							<td>'.$totalDisplay.'</td>
+							<td>
 
-			                	<button type="button" class="button is-link is-outlined is-rounded is-small btn-sale-options" onclick="print_invoice(\''.APP_URL.'app/pdf/invoice.php?code='.$rows['venta_codigo'].'\')" title="Imprimir factura Nro. '.$rows['venta_id'].'" >
-	                                <i class="fas fa-file-invoice-dollar fa-fw"></i>
-	                            </button>
+								<button type="button" class="button is-link is-outlined is-rounded is-small btn-sale-options" onclick="print_invoice(\''.APP_URL.'app/pdf/invoice.php?code='.$rows['venta_codigo'].'\')" title="Imprimir factura Nro. '.$rows['venta_id'].'" >
+									<i class="fas fa-file-invoice-dollar fa-fw"></i>
+								</button>
 
-                                <button type="button" class="button is-link is-outlined is-rounded is-small btn-sale-options" onclick="print_ticket(\''.APP_URL.'app/pdf/ticket.php?code='.$rows['venta_codigo'].'\')" title="Imprimir ticket Nro. '.$rows['venta_id'].'" >
-                                    <i class="fas fa-receipt fa-fw"></i>
-                                </button>
+								<button type="button" class="button is-link is-outlined is-rounded is-small btn-sale-options" onclick="print_ticket(\''.APP_URL.'app/pdf/ticket.php?code='.$rows['venta_codigo'].'\')" title="Imprimir ticket Nro. '.$rows['venta_id'].'" >
+									<i class="fas fa-receipt fa-fw"></i>
+								</button>
 
-			                    <a href="'.APP_URL.'saleDetail/'.$rows['venta_codigo'].'/" class="button is-link is-rounded is-small" title="Informacion de venta Nro. '.$rows['venta_id'].'" >
-			                    	<i class="fas fa-shopping-bag fa-fw"></i>
-			                    </a>
+								<a href="'.APP_URL.'saleDetail/'.$rows['venta_codigo'].'/" class="button is-link is-rounded is-small" title="Informacion de venta Nro. '.$rows['venta_id'].'" >
+									<i class="fas fa-shopping-bag fa-fw"></i>
+								</a>
 
-			                	<form class="FormularioAjax is-inline-block" action="'.APP_URL.'app/ajax/ventaAjax.php" method="POST" autocomplete="off" >
+								'.$abonarBtn.'
 
-			                		<input type="hidden" name="modulo_venta" value="eliminar_venta">
-			                		<input type="hidden" name="venta_id" value="'.$rows['venta_id'].'">
+								<form class="FormularioAjax is-inline-block" action="'.APP_URL.'app/ajax/ventaAjax.php" method="POST" autocomplete="off" >
 
-			                    	<button type="submit" class="button is-danger is-rounded is-small" title="Eliminar venta Nro. '.$rows['venta_id'].'" >
-			                    		<i class="far fa-trash-alt fa-fw"></i>
-			                    	</button>
-			                    </form>
+									<input type="hidden" name="modulo_venta" value="eliminar_venta">
+									<input type="hidden" name="venta_id" value="'.$rows['venta_id'].'">
 
-			                </td>
+									<button type="submit" class="button is-danger is-rounded is-small" title="Eliminar venta Nro. '.$rows['venta_id'].'" >
+										<i class="far fa-trash-alt fa-fw"></i>
+									</button>
+								</form>
+
+							</td>
 						</tr>
 					';
 					$contador++;

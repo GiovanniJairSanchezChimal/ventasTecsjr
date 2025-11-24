@@ -69,15 +69,16 @@ CREATE TABLE `cliente` (
   `cliente_ciudad` varchar(30) COLLATE utf8_spanish2_ci NOT NULL,
   `cliente_direccion` varchar(70) COLLATE utf8_spanish2_ci NOT NULL,
   `cliente_telefono` varchar(20) COLLATE utf8_spanish2_ci NOT NULL,
-  `cliente_email` varchar(50) COLLATE utf8_spanish2_ci NOT NULL
+  `cliente_email` varchar(50) COLLATE utf8_spanish2_ci NOT NULL,
+  `cliente_clave` varchar(255) COLLATE utf8_spanish2_ci NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_spanish2_ci;
 
 --
 -- Volcado de datos para la tabla `cliente`
 --
 
-INSERT INTO `cliente` (`cliente_id`, `cliente_tipo_documento`, `cliente_numero_documento`, `cliente_nombre`, `cliente_apellido`, `cliente_provincia`, `cliente_ciudad`, `cliente_direccion`, `cliente_telefono`, `cliente_email`) VALUES
-(1, 'Otro', 'N/A', 'Publico', 'General', 'N/A', 'N/A', 'N/A', 'N/A', 'N/A');
+INSERT INTO `cliente` (`cliente_id`, `cliente_tipo_documento`, `cliente_numero_documento`, `cliente_nombre`, `cliente_apellido`, `cliente_provincia`, `cliente_ciudad`, `cliente_direccion`, `cliente_telefono`, `cliente_email`, `cliente_clave`) VALUES
+(1, 'Otro', 'N/A', 'Publico', 'General', 'N/A', 'N/A', 'N/A', 'N/A', 'N/A', '');
 
 -- --------------------------------------------------------
 
@@ -136,7 +137,7 @@ CREATE TABLE `usuario` (
 --
 
 INSERT INTO `usuario` (`usuario_id`, `usuario_nombre`, `usuario_apellido`, `usuario_email`, `usuario_usuario`, `usuario_clave`, `usuario_foto`, `caja_id`) VALUES
-(1, 'Administrador', 'Principal', '', 'Administrador', '$2y$10$Jgm6xFb5Onz/BMdIkNK2Tur8yg/NYEMb/tdnhoV7kB1BwIG4R05D2', '', 1);
+(1, 'Administrador', 'Principal', '', 'Administrador', '$2y$10$wHqYVNJXqRCGDpa2BkL4SneCOcGHWxirMRHkRkNvztNFVQVw1GcGy', '', 1);
 
 -- --------------------------------------------------------
 
@@ -315,3 +316,4 @@ COMMIT;
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
 /*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
+/*  ESTE ES EL ARCHIVO .SQL Y ES EL QUE SE VA A IMPORTAR A PHPMYADMIN */

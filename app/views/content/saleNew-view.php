@@ -238,8 +238,26 @@
                 </div>
                 <?php } ?>
 
+                <div class="control mb-3">
+                    <label>Tipo de venta <?php echo CAMPO_OBLIGATORIO; ?></label>
+                    <div class="field is-grouped">
+                        <p class="control">
+                            <label class="radio">
+                                <input type="radio" name="venta_tipo" value="contado" checked>
+                                Contado
+                            </label>
+                        </p>
+                        <p class="control">
+                            <label class="radio">
+                                <input type="radio" name="venta_tipo" value="apartado">
+                                Apartado (abono)
+                            </label>
+                        </p>
+                    </div>
+                </div>
+
                 <div class="control mb-5">
-                    <label>Total pagado por cliente <?php echo CAMPO_OBLIGATORIO; ?></label>
+                    <label>Total pagado por cliente <?php echo CAMPO_OBLIGATORIO; ?> <small class="has-text-grey">(Si es Apartado ingrese el abono)</small></label>
                     <input class="input" type="text" name="venta_abono" id="venta_abono" value="0.00" pattern="[0-9.]{1,25}" maxlength="25" >
                 </div>
 

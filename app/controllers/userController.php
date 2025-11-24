@@ -8,6 +8,18 @@
 		/*----------  Controlador registrar usuario  ----------*/
 		public function registrarUsuarioControlador(){
 
+			// Sólo Administrador (id 1) puede registrar staffs
+			if(!isset($_SESSION['id']) || $_SESSION['id']!=1){
+				$alerta=[
+					"tipo"=>"simple",
+					"titulo"=>"Acceso denegado",
+					"texto"=>"No tiene permisos para realizar esta acción",
+					"icono"=>"error"
+				];
+				return json_encode($alerta);
+				exit();
+			}
+
 			# Almacenando datos#
 		    $nombre=$this->limpiarCadena($_POST['usuario_nombre']);
 		    $apellido=$this->limpiarCadena($_POST['usuario_apellido']);
@@ -414,6 +426,18 @@
 
 		/*----------  Controlador eliminar usuario  ----------*/
 		public function eliminarUsuarioControlador(){
+
+			// Sólo Administrador (id 1) puede eliminar staffs
+			if(!isset($_SESSION['id']) || $_SESSION['id']!=1){
+				$alerta=[
+					"tipo"=>"simple",
+					"titulo"=>"Acceso denegado",
+					"texto"=>"No tiene permisos para realizar esta acción",
+					"icono"=>"error"
+				];
+				return json_encode($alerta);
+				exit();
+			}
 
 			$id=$this->limpiarCadena($_POST['usuario_id']);
 

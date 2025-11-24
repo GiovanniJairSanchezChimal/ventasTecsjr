@@ -20,6 +20,8 @@
 
 		    $telefono=$this->limpiarCadena($_POST['cliente_telefono']);
 		    $email=$this->limpiarCadena($_POST['cliente_email']);
+			$clave_1=isset($_POST['cliente_clave_1'])?$this->limpiarCadena($_POST['cliente_clave_1']):"";
+			$clave_2=isset($_POST['cliente_clave_2'])?$this->limpiarCadena($_POST['cliente_clave_2']):"";
 
 		    # Verificando campos obligatorios #
             if($numero_documento=="" || $nombre=="" || $apellido=="" || $provincia=="" || $ciudad=="" || $direccion==""){
@@ -165,6 +167,18 @@
 		    }
 
 
+			# Validando contraseña cliente #
+			if($clave_1=="" || $clave_2==""){
+				$alerta=["tipo"=>"simple","titulo"=>"Ocurrió un error inesperado","texto"=>"Debe ingresar y confirmar la contraseña","icono"=>"error"];return json_encode($alerta);exit();
+			}
+			if($this->verificarDatos("[a-zA-Z0-9$@.-]{7,100}",$clave_1) || $this->verificarDatos("[a-zA-Z0-9$@.-]{7,100}",$clave_2)){
+				$alerta=["tipo"=>"simple","titulo"=>"Ocurrió un error inesperado","texto"=>"La contraseña no coincide con el formato solicitado","icono"=>"error"];return json_encode($alerta);exit();
+			}
+			if($clave_1!=$clave_2){
+				$alerta=["tipo"=>"simple","titulo"=>"Ocurrió un error inesperado","texto"=>"Las contraseñas no coinciden","icono"=>"error"];return json_encode($alerta);exit();
+			}
+			$clave_hash=password_hash($clave_1,PASSWORD_BCRYPT,["cost"=>10]);
+
 		    $cliente_datos_reg=[
 				[
 					"campo_nombre"=>"cliente_tipo_documento",
@@ -210,18 +224,37 @@
 					"campo_nombre"=>"cliente_email",
 					"campo_marcador"=>":Email",
 					"campo_valor"=>$email
+				],
+				[
+					"campo_nombre"=>"cliente_clave",
+					"campo_marcador"=>":Clave",
+					"campo_valor"=>$clave_hash
 				]
 			];
 
 			$registrar_cliente=$this->guardarDatos("cliente",$cliente_datos_reg);
 
 			if($registrar_cliente->rowCount()==1){
-				$alerta=[
-					"tipo"=>"limpiar",
-					"titulo"=>"Cliente registrado",
-					"texto"=>"El cliente ".$nombre." ".$apellido." se registro con exito",
-					"icono"=>"success"
-				];
+				// Obtener el id del cliente recien insertado
+				$check_cliente=$this->ejecutarConsulta("SELECT cliente_id FROM cliente WHERE cliente_tipo_documento='".$tipo_documento."' AND cliente_numero_documento='".$numero_documento."' LIMIT 1");
+				if($check_cliente->rowCount()==1){
+					$check_cliente=$check_cliente->fetch();
+					$_SESSION['cliente_id']=$check_cliente['cliente_id'];
+					$_SESSION['cliente_nombre']=$nombre;
+					$_SESSION['cliente_apellido']=$apellido;
+					
+					$alerta=[
+						"tipo"=>"redireccionar",
+						"url"=>APP_URL."clientDashboard/"
+					];
+				}else{
+					$alerta=[
+						"tipo"=>"limpiar",
+						"titulo"=>"Cliente registrado",
+						"texto"=>"El cliente ".$nombre." ".$apellido." se registro con exito",
+						"icono"=>"success"
+					];
+				}
 			}else{
 				$alerta=[
 					"tipo"=>"simple",

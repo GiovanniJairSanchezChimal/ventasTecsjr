@@ -1,0 +1,63 @@
+# === OS artifacts ===
+Thumbs.db
+Desktop.ini
+.DS_Store
+
+# === IDE / Editor ===
+.vscode/
+.idea/
+*.code-workspace
+
+# === Dependency / build directories ===
+node_modules/
+vendor/
+
+# === Composer / PHP (keep composer.json & lock tracked if used) ===
+#composer.lock
+
+# === Environment / secrets ===
+.env
+.env.*
+*.env.local
+
+# === Logs & runtime files ===
+*.log
+logs/
+storage/
+sessions/
+cache/
+tmp/
+*.cache
+
+# === Coverage / reports ===
+coverage/
+*.coverage
+
+# === Asset processing (adjust if you want to track) ===
+public/dist/
+public/build/
+
+# === Generated PDFs / invoices (uncomment if generated dynamically) ===
+#app/pdf/invoice_generated/
+#app/pdf/ticket_generated/
+
+# === Uploaded media (remove if you DO want them in git) ===
+#app/views/fotos/
+#app/views/productos/
+
+# === System files ===
+*.swp
+*.swo
+*.bak
+*.tmp
+~$*
+
+# === SQL dumps (requested) ===
+DB/*.sql
+*.sql
+
+# === Misc ===
+.idea_modules/
+*.iml
+
+# End of .gitignore

@@ -1,7 +1,10 @@
 <section class="full-width navLateral scroll" id="navLateral">
-	<div class="full-width navLateral-body">
-		<div class="full-width navLateral-body-logo has-text-centered tittles is-uppercase">
-			Sistema de ventas 
+	<div class="full-width navLateral-body" >
+		<div class="full-width navLateral-body-logo has-text-centered tittles is-uppercase" style="background-color:#091663f6;color:#fff;">
+			ventas TecSJR
+		</div>
+		<div class=" has-text-centered ">
+			<img src="<?php echo APP_URL.'app/views/img/logoTec1.png'; ?>" alt="LogoTec1" style="height:80px;width:auto;" onerror="this.onerror=null;this.src='<?php echo APP_URL.'app/views/img/default-logo.png'; ?>'">
 		</div>
 		<figure class="full-width" style="height: 77px;">
 			<div class="navLateral-body-cl">
@@ -20,14 +23,12 @@
 				</span>
 			</figcaption>
 		</figure>
-		<div class="full-width tittles navLateral-body-tittle-menu has-text-centered is-uppercase">
-			<i class="fas fa-th-large fa-fw"></i> &nbsp; <?php echo APP_NAME; ?>
-		</div>
+		
 		<nav class="full-width">
 			<ul class="full-width list-unstyle menu-principal">
 
 				<li class="full-width">
-					<a href="<?php echo APP_URL; ?>dashboard/" class="full-width">
+					<a href="<?php echo APP_URL; ?>index.php?views=dashboard" class="full-width">
 						<div class="navLateral-body-cl">
 							<i class="fab fa-dashcube fa-fw"></i>
 						</div>
@@ -39,59 +40,14 @@
 
 				<li class="full-width divider-menu-h"></li>
 
-				<li class="full-width">
-					<a href="#" class="full-width btn-subMenu">
-						<div class="navLateral-body-cl">
-							<i class="fas fa-cash-register fa-fw"></i>
-						</div>
-						<div class="navLateral-body-cr">
-							CAJAS
-						</div>
-						<span class="fas fa-chevron-down"></span>
-					</a>
-					<ul class="full-width menu-principal sub-menu-options">
-						<li class="full-width">
-							<a href="<?php echo APP_URL; ?>cashierNew/" class="full-width">
-								<div class="navLateral-body-cl">
-									<i class="fas fa-cash-register fa-fw"></i>
-								</div>
-								<div class="navLateral-body-cr">
-									Nueva caja
-								</div>
-							</a>
-						</li>
-						<li class="full-width">
-							<a href="<?php echo APP_URL; ?>cashierList/" class="full-width">
-								<div class="navLateral-body-cl">
-									<i class="fas fa-clipboard-list fa-fw"></i>
-								</div>
-								<div class="navLateral-body-cr">
-									Lista de cajas
-								</div>
-							</a>
-						</li>
-						<li class="full-width">
-							<a href="<?php echo APP_URL; ?>cashierSearch/" class="full-width">
-								<div class="navLateral-body-cl">
-									<i class="fas fa-search fa-fw"></i>
-								</div>
-								<div class="navLateral-body-cr">
-									Buscar caja
-								</div>
-							</a>
-						</li>
-					</ul>
-				</li>
-
-				<li class="full-width divider-menu-h"></li>
-
+				<?php if(isset($_SESSION['id']) && $_SESSION['id']==1){ ?>
 				<li class="full-width">
 					<a href="#" class="full-width btn-subMenu">
 						<div class="navLateral-body-cl">
 							<i class="fas fa-users fa-fw"></i>
 						</div>
 						<div class="navLateral-body-cr">
-							USUARIOS
+							STAFFS
 						</div>
 						<span class="fas fa-chevron-down"></span>
 					</a>
@@ -102,7 +58,7 @@
 									<i class="fas fa-cash-register fa-fw"></i>
 								</div>
 								<div class="navLateral-body-cr">
-									Nuevo usuario
+									Nuevo Staff
 								</div>
 							</a>
 						</li>
@@ -112,7 +68,7 @@
 									<i class="fas fa-clipboard-list fa-fw"></i>
 								</div>
 								<div class="navLateral-body-cr">
-									Lista de usuarios
+									Lista de Staffs
 								</div>
 							</a>
 						</li>
@@ -122,12 +78,13 @@
 									<i class="fas fa-search fa-fw"></i>
 								</div>
 								<div class="navLateral-body-cr">
-									Buscar usuario
+									Buscar Staff
 								</div>
 							</a>
 						</li>
 					</ul>
 				</li>
+				<?php } ?>
 
 				<li class="full-width divider-menu-h"></li>
 

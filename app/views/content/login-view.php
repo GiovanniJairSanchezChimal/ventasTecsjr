@@ -13,14 +13,14 @@
 		?>
 
 		<div class="field">
-			<label class="label"><i class="fas fa-user-secret"></i> &nbsp; Usuario</label>
+			<label class="label"><i class="fas fa-id-card"></i> &nbsp; Número de control / Usuario</label>
 			<div class="control">
-			    <input class="input" type="text" name="login_usuario" pattern="[a-zA-Z0-9]{4,20}" maxlength="20" required >
+			    <input class="input" type="text" name="login_usuario" placeholder="Ingresa tu número de control" pattern="[a-zA-Z0-9-]{4,30}" maxlength="30" required >
 			</div>
 		</div>
 
 		<div class="field">
-		  	<label class="label"><i class="fas fa-key"></i> &nbsp; Clave</label>
+		  	<label class="label"><i class="fas fa-key"></i> &nbsp; Contraseña</label>
 		  	<div class="control">
 		    	<input class="input" type="password" name="login_clave" pattern="[a-zA-Z0-9$@.-]{7,100}" maxlength="100" required >
 		  	</div>
@@ -28,6 +28,11 @@
 
 		<p class="has-text-centered mb-4 mt-3">
 			<button type="submit" class="button is-info is-rounded">LOG IN</button>
+		</p>
+
+		<p class="has-text-centered">
+			<!-- Enlace apunta directamente al enrutador con query para garantizar carga de vista -->
+			<a href="<?php echo APP_URL; ?>index.php?views=clientRegister" class="button is-link is-rounded" id="btn-register">REGISTRARSE</a>
 		</p>
 
 	</form>

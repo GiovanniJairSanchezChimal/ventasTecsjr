@@ -1109,4 +1109,45 @@
 
 			return json_encode($alerta);
 		}
-	}
+
+		/*----------  Controlador listar producto para clientes (solo lectura)  ----------*/
+public function listarProductoPublicoControlador(){
+    $campos="producto.producto_id,producto.producto_codigo,producto.producto_nombre,producto_stock_total,producto.producto_precio_venta,producto.producto_foto,categoria.categoria_nombre";
+    $consulta="SELECT $campos FROM producto INNER JOIN categoria ON producto.categoria_id=categoria.categoria_id ORDER BY producto.producto_nombre ASC";
+    $datos=$this->ejecutarConsulta($consulta)->fetchAll();
+    $salida="";
+    $contador=1;
+    foreach($datos as $row){
+        $fotoHtml = is_file("./app/views/productos/".$row['producto_foto'])
+            ? '<img src="'.APP_URL.'app/views/productos/'.$row['producto_foto'].'" />'
+            : '<img src="'.APP_URL.'app/views/productos/default.png" />';
+
+        $salida.= "<article class=\"media pb-3 pt-3 producto-item\" data-codigo=\"".htmlspecialchars($row['producto_codigo'])."\">\n"
+                . "\t<figure class=\"media-left\">\n"
+                . "\t\t<p class=\"image is-64x64\">$fotoHtml</p>\n"
+                . "\t</figure>\n"
+                . "\t<div class=\"media-content\">\n"
+                . "\t\t<div class=\"content\">\n"
+                . "\t\t\t<p>\n"
+                . "\t\t\t\t<strong>$contador - ".htmlspecialchars($row['producto_nombre'])."</strong><br>\n"
+                . "\t\t\t\t<strong>CODIGO:</strong> ".htmlspecialchars($row['producto_codigo']).", \n"
+                . "\t\t\t\t<strong>PRECIO:</strong> $".number_format($row['producto_precio_venta'],MONEDA_DECIMALES,'.','')."\n"
+                . "\t\t\t\t<strong>STOCK:</strong> ".htmlspecialchars($row['producto_stock_total']).", \n"
+                . "\t\t\t\t<strong>CATEGORIA:</strong> ".htmlspecialchars($row['categoria_nombre'])."\n"
+                . "\t\t\t</p>\n"
+                . "\t\t</div>\n"
+                . "\t\t<div class=\"has-text-right\">\n"
+                . "\t\t\t<button type=\"button\" class=\"button is-primary is-rounded is-small btn-add-pedido\" data-codigo=\"".htmlspecialchars($row['producto_codigo'])."\" ".($row['producto_stock_total']>0? "" : "disabled").">\n"
+                . "\t\t\t\t<i class=\"fas fa-cart-plus\"></i> Agregar\n"
+                . "\t\t\t</button>\n"
+                . "\t\t</div>\n"
+                . "\t</div>\n"
+                . "</article>\n<hr>";
+        $contador++;
+    }
+    if($salida==""){
+        $salida='<p class="has-text-centered">No hay productos disponibles</p>';
+    }
+    return $salida;
+}
+}

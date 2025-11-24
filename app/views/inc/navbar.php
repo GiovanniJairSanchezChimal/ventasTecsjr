@@ -1,4 +1,4 @@
-<div class="full-width navBar">
+<div class="full-width navBar" style="background-color:#091663f6;color:#fff;">
     <div class="full-width navBar-options">
         <i class="fas fa-exchange-alt fa-fw" id="btn-menu"></i> 
         <nav class="navBar-options-list">
