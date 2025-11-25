@@ -65,7 +65,7 @@ class userController extends mainModel{
 		        exit();
 		    }
 
-		    if($this->verificarDatos("[a-zA-Z0-9$@.-]{7,100}",$clave1) || $this->verificarDatos("[a-zA-Z0-9$@.-]{7,100}",$clave2)){
+		    if($this->verificarDatos("[A-Za-z0-9@$._-]{7,100}",$clave1) || $this->verificarDatos("[A-Za-z0-9@$._-]{7,100}",$clave2)){
 		    	$alerta=[
 					"tipo"=>"simple",
 					"titulo"=>"Ocurrió un error inesperado",
@@ -530,7 +530,7 @@ class userController extends mainModel{
 		        exit();
 		    }
 
-		    if($this->verificarDatos("[a-zA-Z0-9$@.-]{7,100}",$admin_clave)){
+		    if($this->verificarDatos("[A-Za-z0-9@$._-]{7,100}",$admin_clave)){
 		    	$alerta=[
 					"tipo"=>"simple",
 					"titulo"=>"Ocurrió un error inesperado",
@@ -655,7 +655,7 @@ class userController extends mainModel{
 
             # Verificando claves #
             if($clave1!="" || $clave2!=""){
-            	if($this->verificarDatos("[a-zA-Z0-9$@.-]{7,100}",$clave1) || $this->verificarDatos("[a-zA-Z0-9$@.-]{7,100}",$clave2)){
+		    	if($this->verificarDatos("[A-Za-z0-9@$._-]{7,100}",$clave1) || $this->verificarDatos("[A-Za-z0-9@$._-]{7,100}",$clave2)){
 
 			        $alerta=[
 						"tipo"=>"simple",

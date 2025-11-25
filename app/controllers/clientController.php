@@ -171,7 +171,7 @@
 			if($clave_1=="" || $clave_2==""){
 				$alerta=["tipo"=>"simple","titulo"=>"Ocurrió un error inesperado","texto"=>"Debe ingresar y confirmar la contraseña","icono"=>"error"];return json_encode($alerta);exit();
 			}
-			if($this->verificarDatos("[a-zA-Z0-9$@.-]{7,100}",$clave_1) || $this->verificarDatos("[a-zA-Z0-9$@.-]{7,100}",$clave_2)){
+			if($this->verificarDatos("[A-Za-z0-9@$._-]{7,100}",$clave_1) || $this->verificarDatos("[A-Za-z0-9@$._-]{7,100}",$clave_2)){
 				$alerta=["tipo"=>"simple","titulo"=>"Ocurrió un error inesperado","texto"=>"La contraseña no coincide con el formato solicitado","icono"=>"error"];return json_encode($alerta);exit();
 			}
 			if($clave_1!=$clave_2){

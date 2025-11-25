@@ -80,15 +80,17 @@
 		</div>
 		<div class="columns">
 			<div class="column">
-				<div class="control">
+				<div class="control has-icons-right">
 					<label>Contraseña <?php echo CAMPO_OBLIGATORIO; ?></label>
-					<input class="input" type="password" name="cliente_clave_1" pattern="[a-zA-Z0-9$@.-]{7,100}" maxlength="100" required>
+					<input id="cliente_clave_1" class="input" type="password" name="cliente_clave_1" pattern="[A-Za-z0-9@$._-]{7,100}" maxlength="100" required>
+					<span class="icon is-small is-right toggle-password" data-target="cliente_clave_1" style="cursor:pointer;pointer-events:auto" title="Mostrar/Ocultar" role="button" tabindex="0"><i class="fas fa-eye"></i></span>
 				</div>
 			</div>
 			<div class="column">
-				<div class="control">
+				<div class="control has-icons-right">
 					<label>Confirmar contraseña <?php echo CAMPO_OBLIGATORIO; ?></label>
-					<input class="input" type="password" name="cliente_clave_2" pattern="[a-zA-Z0-9$@.-]{7,100}" maxlength="100" required>
+					<input id="cliente_clave_2" class="input" type="password" name="cliente_clave_2" pattern="[A-Za-z0-9@$._-]{7,100}" maxlength="100" required>
+					<span class="icon is-small is-right toggle-password" data-target="cliente_clave_2" style="cursor:pointer;pointer-events:auto" title="Mostrar/Ocultar" role="button" tabindex="0"><i class="fas fa-eye"></i></span>
 				</div>
 			</div>
 		</div>
@@ -100,4 +102,19 @@
             <small>Los campos marcados con <?php echo CAMPO_OBLIGATORIO; ?> son obligatorios</small>
         </p>
 	</form>
+	<script>
+	(function(){
+		function toggle(){
+			var id=this.getAttribute('data-target');
+			var input=document.getElementById(id);
+			if(!input) return;
+			if(input.type==='password'){ input.type='text'; this.querySelector('i').classList.replace('fa-eye','fa-eye-slash'); }
+			else{ input.type='password'; this.querySelector('i').classList.replace('fa-eye-slash','fa-eye'); }
+		}
+		document.querySelectorAll('.toggle-password').forEach(function(t){
+			t.addEventListener('click',toggle);
+			t.addEventListener('keydown',function(ev){ if(ev.key==='Enter' || ev.key===' '){ ev.preventDefault(); toggle.call(this); }});
+		});
+	})();
+	</script>
 </div>

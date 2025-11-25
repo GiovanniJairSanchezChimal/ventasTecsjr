@@ -20,11 +20,14 @@
 		</div>
 
 		<div class="field">
-		  	<label class="label"><i class="fas fa-key"></i> &nbsp; Contraseña</label>
-		  	<div class="control">
-		    	<input class="input" type="password" name="login_clave" pattern="[a-zA-Z0-9$@.-]{7,100}" maxlength="100" required >
-		  	</div>
-		</div>
+	  	<label class="label"><i class="fas fa-key"></i> &nbsp; Contraseña</label>
+	  	<div class="control has-icons-right">
+	    	<input id="login_clave" class="input" type="password" name="login_clave" pattern="[A-Za-z0-9@$._-]{7,100}" maxlength="100" required >
+	    	<span class="icon is-small is-right toggle-password" data-target="login_clave" style="cursor:pointer;pointer-events:auto;" title="Mostrar/Ocultar" role="button" tabindex="0">
+	    		<i class="fas fa-eye"></i>
+	    	</span>
+	  	</div>
+	</div>
 
 		<p class="has-text-centered mb-4 mt-3">
 			<button type="submit" class="button is-info is-rounded">LOG IN</button>
@@ -36,4 +39,20 @@
 		</p>
 
 	</form>
+
+<script>
+(function(){
+	function toggle(e){
+		var id=this.getAttribute('data-target');
+		var input=document.getElementById(id);
+		if(!input) return;
+		if(input.type==='password'){ input.type='text'; this.querySelector('i').classList.replace('fa-eye','fa-eye-slash'); }
+		else{ input.type='password'; this.querySelector('i').classList.replace('fa-eye-slash','fa-eye'); }
+	}
+	document.querySelectorAll('.toggle-password').forEach(function(t){
+		t.addEventListener('click',toggle);
+		t.addEventListener('keydown',function(ev){ if(ev.key==='Enter' || ev.key===' ') { ev.preventDefault(); toggle.call(this,ev); } });
+	});
+})();
+</script>
 </div>

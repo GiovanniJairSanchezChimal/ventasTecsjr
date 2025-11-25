@@ -6,5 +6,7 @@
 <link rel="stylesheet" href="<?php echo APP_URL; ?>app/views/css/all.css">
 <link rel="stylesheet" href="<?php echo APP_URL; ?>app/views/css/estilos.css">
 
+<link rel="icon" type="image/png" href="<?php echo APP_URL; ?>app/views/img/LogoTec1.png">
+
 <link rel="stylesheet" href="<?php echo APP_URL; ?>app/views/css/sweetalert2.min.css">
 <script src="<?php echo APP_URL; ?>app/views/js/sweetalert2.all.min.js" ></script>
